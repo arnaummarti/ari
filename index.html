@@ -1,0 +1,510 @@
+
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf8">
+  <meta name="description" content="Una petita sorpresa feta amb molt de carinyo.">
+  <title>ARI</title>
+
+  <style>
+    :root {
+      --paper: #fffaf8;
+      --ink: #242020;
+      --muted: #766d6b;
+      --red: #bd2738;
+      --line: #eadfdd;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(189,39,56,.055), transparent 28rem),
+        var(--paper);
+      font-family: Georgia, "Times New Roman", serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px 14px;
+    }
+
+    .shell { width: min(100%, 560px); }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font: 11px/1.3 Arial, sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .topline::before,
+    .topline::after {
+      content: "";
+      width: 27px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .card {
+      background: rgba(255,255,255,.88);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: clamp(25px, 7vw, 46px);
+      box-shadow: 0 18px 55px rgba(54,31,31,.07);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .heart {
+      color: var(--red);
+      font: 27px/1 Arial, sans-serif;
+      margin-bottom: 17px;
+    }
+
+    .eyebrow {
+      color: var(--red);
+      font: 11px/1.4 Arial, sans-serif;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      margin: 0 0 13px;
+    }
+
+    h1, h2 {
+      font-weight: 400;
+      line-height: 1.16;
+      letter-spacing: -.035em;
+      margin: 0 auto 18px;
+    }
+
+    h1 { font-size: clamp(34px, 9vw, 49px); }
+    h2 { font-size: clamp(29px, 7vw, 39px); }
+
+    p {
+      font-size: 17px;
+      line-height: 1.75;
+      color: #514947;
+      margin: 0 auto 15px;
+    }
+
+    .intro { max-width: 410px; }
+
+    .divider {
+      width: 42px;
+      height: 1px;
+      background: var(--red);
+      opacity: .65;
+      margin: 25px auto;
+    }
+
+    .button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      background: var(--ink);
+      color: white;
+      cursor: pointer;
+      padding: 15px 24px;
+      margin-top: 18px;
+      font: 600 13px/1 Arial, sans-serif;
+      letter-spacing: .08em;
+      min-height: 49px;
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    .button:hover {
+      background: var(--red);
+      transform: translateY(-2px);
+    }
+
+    .button:focus-visible,
+    .back-button:focus-visible {
+      outline: 3px solid rgba(189,39,56,.35);
+      outline-offset: 4px;
+    }
+
+    .step { display: none; animation: arrive .55s ease both; }
+    .step.active { display: block; }
+
+    /* Navegació entre pantalles */
+    .navigation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .navigation .button {
+      margin-top: 0;
+    }
+
+    .back-button {
+      appearance: none;
+      width: 49px;
+      height: 49px;
+      min-width: 49px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 24px/1 Arial, sans-serif;
+      transition: all .18s ease;
+    }
+
+    .back-button:hover {
+      border-color: var(--red);
+      color: var(--red);
+      transform: translateX(-2px);
+    }
+
+    /* Fotografies */
+    .photos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 28px -12px 24px;
+    }
+
+    .photo {
+      aspect-ratio: 3 / 4;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f5eeee;
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #a99b98;
+      font: 11px/1.4 Arial, sans-serif;
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .photo.has-image img { display: block; }
+    .photo.has-image span { display: none; }
+
+    /* Nota de la pantalla 3 */
+    .note {
+      padding: 18px 17px;
+      margin: 22px 0;
+      background: #fff8f7;
+      border-left: 2px solid var(--red);
+      text-align: left;
+      border-radius: 0 12px 12px 0;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #514947;
+    }
+
+    .question {
+      color: var(--ink);
+      font-size: clamp(34px, 9vw, 48px);
+      line-height: 1.15;
+      margin: 12px auto 20px;
+    }
+
+    .question .red { color: var(--red); }
+
+    .signature {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    /* Indicadors de progrés */
+    .progress {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 18px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #e4d8d6;
+    }
+
+    .dot.on { background: var(--red); }
+
+    .footer {
+      text-align: center;
+      color: #9b8f8c;
+      font: 10px Arial,sans-serif;
+      letter-spacing: .12em;
+      margin-top: 15px;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(9px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 390px) {
+      body { padding: 12px 9px; }
+
+      .card {
+        border-radius: 18px;
+        padding: 27px 20px;
+      }
+
+      p { font-size: 16px; }
+
+      .photos {
+        gap: 7px;
+        margin-left: -8px;
+        margin-right: -8px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+
+    <!-- <div class="topline">Una petita sorpresa per a tu</div> -->
+
+    <section class="card" aria-live="polite">
+
+      <!-- PANTALLA 1 -->
+      <div class="step active" id="step1">
+        <div class="heart">♥</div>
+
+        <!-- <p class="eyebrow">Abans de continuar...</p> -->
+
+        <h1>Hi ha una cosa que m'agradaria dir-te</h1>
+
+        <p class="intro">
+          He preparat una petita sorpresa. És una manera diferent d'explicar-te algunes coses...
+        </p>
+
+        <div class="divider"></div>
+
+        <!-- <p>Només et demano una cosa: que la llegeixis fins al final. ❤️</p> -->
+
+        <button class="button" type="button" onclick="showStep(2)">
+          Començar <span aria-hidden="true">→</span>
+        </button>
+      </div>
+
+
+      <!-- PANTALLA 2 -->
+      <div class="step" id="step2">
+        <div class="heart">♥</div>
+
+        <p class="eyebrow">Tot va començar un 6 de setembre</p>
+
+        <!-- <h2>Una història que m'encanta viure</h2> -->
+
+        <p>
+          Des d'aquell dia hem compartit converses, riures, moments inesperats i petites coses que, sense adonar-me'n, han anat fent que cada vegada tingui més ganes d'estar amb tu.
+        </p>
+
+        <!-- Fotografies -->
+        <!-- Afegeix les teves fotos a la carpeta fotos amb aquests noms:
+             foto1.jpg, foto2.jpeg i foto3.jpg. -->
+
+        <div class="photos" aria-label="Fotografies nostres">
+
+          <div class="photo">
+            <img
+              src="fotos/foto2.jpeg"
+              alt="La nostra primera foto"
+              onload="this.parentElement.classList.add('has-image')"
+              onerror="this.style.display='none'"
+            >
+            <span>Un record</span>
+          </div>
+
+          <div class="photo">
+            <img
+              src="fotos/foto1.jpg"
+              alt="Un altre record nostre"
+              onload="this.parentElement.classList.add('has-image')"
+              onerror="this.style.display='none'"
+            >
+            <span>Un somriure</span>
+          </div>
+
+          <div class="photo">
+            <img
+              src="fotos/foto3.jpg"
+              alt="Un moment especial"
+              onload="this.parentElement.classList.add('has-image')"
+              onerror="this.style.display='none'"
+            >
+            <span>Un moment</span>
+          </div>
+
+        </div>
+
+        <p>
+          M'agrada com ets, la teva manera de fer-me riure i, sobretot, com em sento quan estic amb tu.
+        </p>
+
+        <div class="navigation">
+
+          <button
+            class="back-button"
+            type="button"
+            onclick="showStep(1)"
+            aria-label="Tornar a la pantalla anterior"
+          >
+            ←
+          </button>
+
+          <button class="button" type="button" onclick="showStep(3)">
+            Hi ha una última cosa... <span aria-hidden="true">→</span>
+          </button>
+
+        </div>
+      </div>
+
+
+      <!-- PANTALLA 3 -->
+      <div class="step" id="step3">
+        <div class="heart">♥</div>
+
+        <!--<p class="eyebrow">I això només acaba de començar</p> -->
+
+        <!-- <h2>Vull continuar descobrint-te</h2> -->
+
+        <p>
+          No sé què ens espera més endavant, però sí que sé que m'encantaria seguir compartint moments, fent plans, rient, vivint aventures i creant molts més records.
+        </p>
+
+        <div class="note">
+          M'alegro moltíssim que els nostres camins s'hagin creuat. I he buscat una manera diferent de dir-te com d'important ets per mi.
+        </div>
+
+        <div class="navigation">
+
+          <button
+            class="back-button"
+            type="button"
+            onclick="showStep(2)"
+            aria-label="Tornar a la pantalla anterior"
+          >
+            ←
+          </button>
+
+          <button class="button" type="button" onclick="showStep(4)">
+            I per continuar... una pregunta
+            <span aria-hidden="true">→</span>
+          </button>
+
+        </div>
+
+        <!-- <p class="eyebrow">I per continuar... una pregunta</p> -->
+        <!-- <div class="question">M'agradaria que el nostre pròxim capítol fos junts.</div> -->
+        <!-- <p class="signature">M'encantaria començar aquest nou capítol amb tu.</p> -->
+
+      </div>
+
+
+      <!-- PANTALLA 4 -->
+      <div class="step" id="step4">
+        <div class="heart">♥</div>
+
+        <!--
+        <p class="eyebrow">I ara sí...</p>
+        <h2>Hi ha una cosa que tinc molt clara</h2>
+        <div class="divider"></div>
+        <p>Oficialitzem que som una parella?</p>
+        -->
+
+        <div class="question">
+          Vols ser la meva nòvia?
+        </div>
+
+        <!--
+        <p class="signature">
+          M'encantaria començar aquest nou capítol amb tu.
+        </p>
+        -->
+
+        <button
+          class="back-button"
+          type="button"
+          onclick="showStep(3)"
+          aria-label="Tornar a la pantalla anterior"
+        >
+          ←
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- INDICADORS DE PROGRÉS -->
+    <div class="progress" aria-label="Progrés de la sorpresa">
+      <span class="dot on" id="dot1"></span>
+      <span class="dot" id="dot2"></span>
+      <span class="dot" id="dot3"></span>
+      <span class="dot" id="dot4"></span>
+    </div>
+
+    <!-- <div class="footer">FET AMB MOLT DE CARINYO</div> -->
+
+  </main>
+
+
+  <script>
+    function showStep(number) {
+
+      // Amagar totes les pantalles
+      document.querySelectorAll(".step").forEach(function(step) {
+        step.classList.remove("active");
+      });
+
+      // Mostrar la pantalla seleccionada
+      document.getElementById("step" + number).classList.add("active");
+
+      // Actualitzar els indicadors de progrés
+      document.querySelectorAll(".dot").forEach(function(dot, index) {
+        dot.classList.toggle("on", index < number);
+      });
+
+      // Tornar a la part superior
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+  </script>
+
+</body>
+</html>
